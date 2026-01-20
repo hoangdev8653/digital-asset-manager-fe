@@ -1,82 +1,108 @@
-import { ArrowUpRight, HardDrive, Users, Activity, Plus } from "lucide-react";
+import {
+  ArrowUpRight,
+  HardDrive,
+  Users,
+  Activity,
+  Plus,
+  Search,
+} from "lucide-react";
 
 export default function DashboardPage() {
   return (
-    <div className="space-y-8">
+    <div className="p-8 max-w-7xl mx-auto space-y-8 bg-slate-50 min-h-screen">
       {/* Header Section */}
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-heading font-bold text-white">
-            Dashboard
+          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+            Tổng quan hệ thống
           </h2>
-          <p className="text-slate-400 mt-2 font-body">
-            Welcome back! Here is your digital asset portfolio overview.
+          <p className="text-slate-500 mt-1 font-medium">
+            Chào mừng trở lại! Đây là dữ liệu tài sản số của bạn hôm nay.
           </p>
         </div>
-        <button className="bg-cta hover:bg-orange-600 text-white px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2">
+        <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-blue-200 flex items-center gap-2">
           <Plus className="w-5 h-5" />
-          <span>Upload Asset</span>
+          <span>Tải lên tài sản</span>
         </button>
       </div>
 
-      {/* Stats Grid - Using Surface Color & Minimal Glow */}
+      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
           {
-            label: "Total Assets",
+            label: "Tổng tài sản",
             value: "12,450",
             icon: HardDrive,
-            color: "text-primary",
-            bg: "bg-blue-500/10",
+            color: "blue",
           },
           {
-            label: "Active Users",
+            label: "Người dùng",
             value: "1,203",
             icon: Users,
-            color: "text-green-400",
-            bg: "bg-green-500/10",
+            color: "emerald",
           },
           {
-            label: "Storage Used",
+            label: "Dung lượng dùng",
             value: "85%",
             icon: Activity,
-            color: "text-secondary",
-            bg: "bg-blue-400/10",
+            color: "indigo",
           },
         ].map((stat, i) => (
           <div
             key={i}
-            className="bg-surface p-6 rounded-xl border border-slate-700/50 hover:border-primary/50 transition-all duration-300 group"
+            className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow group"
           >
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-slate-400 font-body text-sm font-medium">
+                <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">
                   {stat.label}
                 </p>
-                <h3 className="text-3xl font-heading font-bold text-white mt-2">
+                <h3 className="text-3xl font-black text-slate-900 mt-2">
                   {stat.value}
                 </h3>
               </div>
-              <div className={`p-3 rounded-lg ${stat.bg} ${stat.color}`}>
+              <div
+                className={`p-3 rounded-xl bg-${stat.color}-50 text-${stat.color}-600`}
+              >
                 <stat.icon className="w-6 h-6" />
               </div>
             </div>
-            <div className="mt-4 flex items-center text-sm text-slate-400">
-              <ArrowUpRight className="w-4 h-4 text-green-400 mr-1" />
-              <span className="text-green-400 font-medium">+12%</span>
-              <span className="ml-2">from last month</span>
+            <div className="mt-4 pt-4 border-t border-slate-50 flex items-center text-sm">
+              <span className="text-emerald-600 font-bold flex items-center">
+                <ArrowUpRight className="w-4 h-4 mr-1" /> +12%
+              </span>
+              <span className="ml-2 text-slate-400 font-medium italic">
+                tăng so với tháng trước
+              </span>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Recent Activity Placeholder */}
-      <div className="bg-surface rounded-xl border border-slate-700/50 p-6 min-h-[300px]">
-        <h3 className="text-xl font-heading font-semibold text-white mb-6">
-          Recent Uploads
-        </h3>
-        <div className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-slate-700/50 rounded-lg text-slate-500">
-          <p>No recent activity found</p>
+      {/* Activity Area */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+          <h3 className="text-lg font-bold text-slate-900">
+            Hoạt động gần đây
+          </h3>
+          <div className="relative">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Tìm kiếm file..."
+              className="pl-9 pr-4 py-2 bg-slate-100 border-none rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none w-64"
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col items-center justify-center h-64">
+          <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-dashed border-slate-300">
+            <HardDrive className="w-8 h-8 text-slate-300" />
+          </div>
+          <p className="text-slate-500 font-bold">Chưa có dữ liệu hiển thị</p>
+          <p className="text-slate-400 text-sm mt-1">
+            Các file bạn tải lên sẽ xuất hiện tại đây.
+          </p>
         </div>
       </div>
     </div>
