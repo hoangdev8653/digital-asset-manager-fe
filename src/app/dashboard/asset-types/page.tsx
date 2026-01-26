@@ -1,7 +1,10 @@
+"use client"
 import { Button } from "@/components/ui/button";
 import { FileType, Plus, Settings2, Hash } from "lucide-react";
+import { useGetAllAssetTypes } from "@/hooks/useAssetType";
 
 export default function AssetTypesPage() {
+  const {data: assetType, isLoading, error} = useGetAllAssetTypes()
   const assetTypes = [
     { name: "Images", count: 12, extensions: [".jpg", ".png", ".webp"] },
     { name: "Videos", count: 5, extensions: [".mp4", ".mov"] },
@@ -32,9 +35,9 @@ export default function AssetTypesPage() {
 
       {/* Grid Layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {assetTypes.map((type) => (
+        {(assetType?.data || []).map((type: any) => (
           <div
-            key={type.name}
+            key={type.id}
             className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all group relative overflow-hidden"
           >
             {/* Background Decoration */}
@@ -52,34 +55,26 @@ export default function AssetTypesPage() {
                   <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
                     {type.name}
                   </h3>
-                  <div className="flex items-center gap-2 text-slate-400 text-xs mt-1 font-medium uppercase tracking-wider">
+                  {/* <div className="flex items-center gap-2 text-slate-400 text-xs mt-1 font-medium uppercase tracking-wider">
                     <Hash className="w-3 h-3" />
-                    {type.count} Assets
-                  </div>
+                    {type.count || 0} Assets
+                  </div> */}
                 </div>
                 <Button className="text-slate-400 hover:text-slate-600 p-1">
                   <Settings2 className="w-4 h-4" />
                 </Button>
               </div>
 
-              <p className="text-slate-500 text-sm mt-3 font-medium">
-                Quy tắc xử lý và trích xuất dữ liệu tự động đã được kích hoạt.
+              <p className="text-slate-500 text-sm mt-3 font-medium line-clamp-3">
+                {type.description || "Chưa có mô tả cho loại tài sản này."}
               </p>
 
-              {/* Extensions Tags */}
-              <div className="mt-5 flex flex-wrap gap-2">
-                {type.extensions.map((ext) => (
-                  <span
-                    key={ext}
-                    className="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg text-[11px] font-bold border border-slate-200"
-                  >
-                    {ext}
-                  </span>
-                ))}
-                <span className="bg-blue-50 text-blue-600 px-2.5 py-1 rounded-lg text-[11px] font-bold border border-blue-100">
-                  +3
-                </span>
-              </div>
+              {/* Extensions Tags - Placeholder if needed, or removed if not in data */}
+               {/* <div className="mt-5 flex flex-wrap gap-2">
+                 <span className="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg text-[11px] font-bold border border-slate-200">
+                    OPEN
+                 </span>
+              </div> */}
             </div>
           </div>
         ))}

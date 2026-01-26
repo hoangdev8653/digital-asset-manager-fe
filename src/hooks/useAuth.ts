@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { login, logout, refreshToken } from "@/apis/auth";
 import { setAccessToken } from "@/lib/axiosInstance";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 export const useLogin = () => {
   const router = useRouter();
@@ -9,15 +10,22 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: login,
     onSuccess: (response: any) => {
-      // 1. Lưu access token vào RAM (axios instance)
-      const { accessToken } = response.data;
+      const { accessToken, user } = response.data;
       setAccessToken(accessToken);
+      toast.success("Đăng nhập thành công ✅");
 
-      // 2. Chuyển hướng vào dashboard
-      router.push("/dashboard");
+      setTimeout(() => {
+        if (user?.role === "ADMIN") {
+          router.push("/dashboard");
+        } else {
+          router.push("/home");
+        }
+      }, 2000);
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Login failed:", error);
+      const message = error?.response?.data?.message || "Đăng nhập thất bại ❌";
+      toast.error(message);
     },
   });
 };

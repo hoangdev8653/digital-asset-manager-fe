@@ -8,42 +8,34 @@ function Navigation() {
 
   return (
     <div className="tablet:hidden block">
-      <ul className="flex justify-between gap-5 text-lg font-semibold text-gray-500 cursor-pointer">
+      <ul className="flex justify-between gap-8 text-sm font-semibold text-slate-500 cursor-pointer">
         <li
-          className={`hover:opacity-60 ${
-            pathname === "/" ? "text-red-700" : ""
+          className={`hover:text-indigo-600 transition-colors ${
+            pathname === "/" || pathname === "/home" ? "text-indigo-600" : ""
           }`}
         >
-          <Link href="/">Trang Chủ</Link>
+          <Link href="/home">Trang Chủ</Link>
         </li>
         <li
-          className={`hover:opacity-60 ${
-            pathname === "/articles" ? "text-red-700" : ""
+          className={`hover:text-indigo-600 transition-colors ${
+            pathname?.startsWith("/asset") ? "text-indigo-600" : ""
           }`}
         >
-          <a href="/articles">Bài viết</a>
-        </li>
-
-        <li
-          className={`hover:opacity-60 ${
-            pathname === "/community" ? "text-red-700" : ""
-          }`}
-        >
-          <a href="/community">Cộng Đồng</a>
+          <Link href="/asset">Tài sản</Link>
         </li>
         <li
-          className={`hover:opacity-60 ${
-            pathname === "/postcard" ? "text-red-700" : ""
+          className={`hover:text-indigo-600 transition-colors ${
+            pathname?.startsWith("/report") ? "text-indigo-600" : ""
           }`}
         >
-          <a href="/postcard">Postcard</a>
+          <Link href="/report">Báo cáo</Link>
         </li>
         <li
-          className={`hover:opacity-60 ${
-            pathname === "/about-us" ? "text-red-700" : ""
+          className={`hover:text-indigo-600 transition-colors ${
+            pathname === "/security-policy" ? "text-indigo-600" : ""
           }`}
         >
-          <a href="/about-us">Về chúng tôi</a>
+          <Link href="/security-policy">Quy định bảo mật</Link>
         </li>
       </ul>
     </div>

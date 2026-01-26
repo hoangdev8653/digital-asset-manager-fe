@@ -2,7 +2,7 @@ import { axiosConfig } from "@/lib/axiosInstance";
 
 export const getAllUser = async () => {
   return await axiosConfig({
-    method: "GET",
+    method: "get",
     url: "/users",
   });
 };
@@ -40,5 +40,13 @@ export const unlockAccount = async (id: string) => {
   return await axiosConfig({
     method: "POST",
     url: `/users/${id}/unlock`,
+  });
+};
+
+export const createUser = async (data: Record<string, any>) => {
+  return await axiosConfig({
+    method: "POST",
+    url: "/users",
+    data,
   });
 };

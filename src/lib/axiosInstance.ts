@@ -70,7 +70,7 @@ axiosConfig.interceptors.response.use(
         // Không cần gửi refreshToken trong body vì nó đã nằm trong HttpOnly Cookie
         // withCredentials: true là bắt buộc để cookie được gửi đi
         const response = await axios.post(
-          "http://localhost:3007/user/refreshToken",
+          "http://localhost:3007/users/refreshToken",
           {},
           { withCredentials: true },
         );

@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   title: "Digital Asset Manager",
   description: "SaaS Dashboard for managing digital assets",
 };
+import Providers from "./providers";
 
 export default function RootLayout({
   children,
@@ -28,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${firaSans.variable} ${firaCode.variable} antialiased`}>
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

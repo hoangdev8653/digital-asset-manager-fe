@@ -1,14 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getAllAssets, createAsset, deleteAsset } from "@/apis/asset";
 
-export const useAssets = () => {
+export const useGetAllAssets = () => {
   return useQuery({
-    queryKey: ["assets"],
+    queryKey: ["asset"],
     queryFn: async () => {
       const response = await getAllAssets();
-      return response.data;
+      return response;
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 6 * 5,
   });
 };
 

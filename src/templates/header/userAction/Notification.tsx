@@ -11,6 +11,7 @@ function Notification() {
   const notificationRef = useRef<HTMLDivElement>(null);
 
   // Dữ liệu mẫu (Mock data)
+  // Dữ liệu mẫu (Mock data)
   const [notifications, setNotifications] = useState([
     {
       id: 1,
@@ -19,19 +20,30 @@ function Notification() {
       is_read: false,
       post: {
         slug: "welcome",
-        image: "https://github.com/shadcn.png",
+        image: "https://placehold.co/400", // Simple placeholder
         id: "1",
       },
     },
     {
       id: 2,
-      message: "Bài viết của bạn đã được phê duyệt.",
+      message: "Báo cáo ngày đã sẵn sàng.",
       createdAt: new Date(Date.now() - 86400000).toISOString(),
       is_read: true,
       post: {
-        slug: "approved",
-        image: "https://github.com/shadcn.png",
+        slug: "report",
+        image: "https://placehold.co/400",
         id: "2",
+      },
+    },
+     {
+      id: 3,
+      message: "Tài sản mới đã được thêm vào.",
+      createdAt: new Date(Date.now() - 172800000).toISOString(),
+      is_read: true,
+      post: {
+        slug: "new-asset",
+        image: "https://placehold.co/400",
+        id: "3",
       },
     },
   ]);
@@ -40,9 +52,7 @@ function Notification() {
   const NotificationIsUnRead = notifications.filter((n) => !n.is_read);
   const totalNotificationUnRead = NotificationIsUnRead.length;
 
-  useEffect(() => {
-    document.getElementById("all")?.classList.add("bg-blue-500");
-  }, []);
+  // Removed broken useEffect
 
   const handleClickOutside = (event: MouseEvent) => {
     if (
@@ -92,15 +102,23 @@ function Notification() {
       {isOpen && (
         <div
           style={{ zIndex: "51" }}
-          className="cursor-default absolute rounded right-[-90px] w-[340px] max-h-[500px] overflow-y-auto p-2 bg-gray-800 top-12 text-white"
+          className="cursor-default absolute rounded-xl right-[-90px] w-[360px] max-h-[500px] overflow-y-auto p-4 bg-slate-900 border border-slate-700 shadow-2xl top-12 text-white"
         >
-          <p className="font-semibold m-2 text-2xl">Thông báo</p>
-          <Tabs defaultValue="all" className="rounded">
-            <TabsList className="flex gap-3 font-medium my-1.5 mx-2 justify-normal">
-              <TabsTrigger className="rounded-xl" value="all">
+          <div className="flex items-center justify-between mb-4">
+               <p className="font-bold text-xl">Thông báo</p>
+          </div>
+          <Tabs defaultValue="all" className="w-full">
+            <TabsList className="bg-slate-800 p-1 rounded-lg w-full grid grid-cols-2">
+              <TabsTrigger 
+                className="rounded-md data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=inactive]:text-slate-400 hover:text-white transition-all" 
+                value="all"
+              >
                 Tất cả
               </TabsTrigger>
-              <TabsTrigger className="rounded-xl" value="unread">
+              <TabsTrigger 
+                className="rounded-md data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=inactive]:text-slate-400 hover:text-white transition-all" 
+                value="unread"
+              >
                 Chưa đọc
               </TabsTrigger>
             </TabsList>
@@ -120,6 +138,7 @@ function Notification() {
                             <Image
                               width={48}
                               height={48}
+                              unoptimized
                               className="rounded-full w-12 h-12 object-cover"
                               src={item?.post?.image}
                               alt={item?.post?.id}
@@ -168,6 +187,7 @@ function Notification() {
                             <Image
                               width={48}
                               height={48}
+                              unoptimized
                               className="rounded-full w-12 h-12 object-cover"
                               src={item?.post.image}
                               alt={item?.post.id}

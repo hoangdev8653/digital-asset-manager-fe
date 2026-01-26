@@ -1,3 +1,4 @@
+"use client"
 import {
   ArrowUpRight,
   HardDrive,
@@ -6,10 +7,17 @@ import {
   Plus,
   Search,
 } from "lucide-react";
+import { useGetAllUser } from "@/hooks/useUser";
+import {useGetAllAssets} from "@/hooks/useAsset"
+import {useGetAllReports} from "@/hooks/useReport"
 
 export default function DashboardPage() {
+  const { data: users } = useGetAllUser();
+  const { data: assets } = useGetAllAssets();
+  const { data: reports } = useGetAllReports();
+
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8 bg-slate-50 min-h-screen">
+    <div className="p-2 max-w-7xl mx-auto space-y-8 bg-slate-50 min-h-screen">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -31,19 +39,19 @@ export default function DashboardPage() {
         {[
           {
             label: "Tổng tài sản",
-            value: "12,450",
+            value: assets?.data?.total,
             icon: HardDrive,
             color: "blue",
           },
           {
             label: "Người dùng",
-            value: "1,203",
+            value: users?.data?.data.length,
             icon: Users,
             color: "emerald",
           },
           {
-            label: "Dung lượng dùng",
-            value: "85%",
+            label: "Tổng báo cáo",
+            value: reports?.data?.length,
             icon: Activity,
             color: "indigo",
           },

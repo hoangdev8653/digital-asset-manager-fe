@@ -3,95 +3,102 @@ import {
   MdOutlineEmail,
   MdOutlineLocalPhone,
   MdOutlineFacebook,
+  MdShield,
+  MdLockOutline
 } from "react-icons/md";
+
+
+import { Github } from "lucide-react";
 
 function Footer() {
   return (
-    <div style={{ color: "#EFE3CA" }} className="w-full bg-black">
-      <div className="mx-auto max-w-7xl py-2 px-4 sm:px-6 lg:px-8 opacity-70">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center my-2">
-          <div className="leading-7">
-            <h3 className="font-semibold text-lg mb-2">Về H7 Life</h3>
-            <p className="hidden md:block">
-              H7 Life là nền tảng cung cấp kiến thức sức khỏe, tư vấn y tế và
-              kết nối cộng đồng với các chuyên gia.
+    <div className="w-full bg-slate-950 text-slate-300">
+      <div className="mx-auto max-w-7xl py-12 px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center md:text-left">
+          {/* Column 1: About */}
+          <div className="space-y-4">
+            <h3 className="font-bold text-xl text-white flex items-center justify-center md:justify-start gap-2">
+              <MdShield className="text-indigo-500" /> SecureVault
+            </h3>
+            <p className="text-sm leading-relaxed text-slate-400">
+              Hệ thống quản lý tài sản số và thông tin định danh doanh nghiệp tập trung. 
+              Bảo mật, an toàn và dễ dàng phân quyền.
             </p>
-            <p>Hãy cùng chúng tôi xây dựng một cuộc sống khỏe mạnh hơn!</p>
+            <div className="flex justify-center md:justify-start gap-4 pt-2">
+                 <div className="flex items-center gap-1 text-xs px-2 py-1 bg-slate-900 rounded border border-slate-800">
+                    <MdLockOutline className="text-green-500"/> AES-256 Encrypted
+                 </div>
+            </div>
           </div>
 
-          <div className="leading-5">
-            <h3 className="font-semibold text-lg mb-2">Điều hướng</h3>
-            <ul className="space-y-2">
+          {/* Column 2: Navigation */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-lg text-white">Điều hướng</h3>
+            <ul className="space-y-2 text-sm">
               <li>
-                <a href="/about-us" className="hover:underline">
-                  Về chúng tôi
-                </a>
+                <Link href="/dashboard" className="hover:text-indigo-400 transition-colors">
+                  Dashboard
+                </Link>
               </li>
               <li>
-                <a href="/articles" className="hover:underline">
-                  Bài viết sức khỏe
-                </a>
+                <Link href="/home" className="hover:text-indigo-400 transition-colors">
+                  Trang chủ
+                </Link>
               </li>
-              <li>
-                <a href="/tu-van" className="hover:underline">
-                  Tư vấn{" "}
-                </a>
-              </li>
-              <li>
-                <a href="/contact" className="hover:underline">
-                  Liên hệ
-                </a>
+               <li>
+                <Link href="/security-policy" className="hover:text-indigo-400 transition-colors">
+                  Quy định bảo mật
+                </Link>
               </li>
             </ul>
           </div>
 
-          <div className="leading-7">
-            <h3 className="font-semibold text-lg mb-2">
-              Nhận bản tin sức khỏe
-            </h3>
-            <p>Đăng ký để nhận mẹo sức khỏe và lời khuyên từ chuyên gia.</p>
-            <form className="mt-2">
-              <input
-                type="email"
-                placeholder="Nhập email của bạn"
-                className="p-2 rounded-md  w-3/4 my-2"
-              />
-              <button className=" ml-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:border-none">
-                Đăng ký
-              </button>
-            </form>
+          {/* Column 3: Resources */}
+          <div className="space-y-4">
+             <h3 className="font-semibold text-lg text-white">Tài nguyên</h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <span className="cursor-not-allowed opacity-50">Hướng dẫn sử dụng (Sắp ra mắt)</span>
+              </li>
+              <li>
+                 <span className="cursor-not-allowed opacity-50">API Documentation</span>
+              </li>
+              <li>
+                 <span className="cursor-not-allowed opacity-50">System Status</span>
+              </li>
+            </ul>
           </div>
-          <div className="leading-7">
-            <h3 className="font-semibold text-lg mb-2">Liên hệ</h3>
-            <p className="flex items-center justify-center gap-2">
-              <MdOutlineEmail className="text-2xl" />
-              <span>hhoang1072000@gmail.com</span>
-            </p>
-            <p className="flex items-center justify-center gap-2 my-1">
-              <MdOutlineLocalPhone className="text-2xl" />
-              <span>0766640006</span>
-            </p>
-            <p className="flex items-center justify-center gap-2">
-              <MdOutlineFacebook className="text-2xl" />
-              <Link
-                href="https://www.facebook.com/hhoang7777/"
+
+          {/* Column 4: Contact */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-lg text-white">Liên hệ hỗ trợ</h3>
+            <div className="flex flex-col gap-3 text-sm">
+               <p className="flex items-center justify-center md:justify-start gap-3 hover:text-white transition-colors">
+                <MdOutlineEmail className="text-xl text-indigo-500" />
+                <span>support@company.com</span>
+              </p>
+              <p className="flex items-center justify-center md:justify-start gap-3 hover:text-white transition-colors">
+                <MdOutlineLocalPhone className="text-xl text-indigo-500" />
+                <span>IT Helpdesk: 1900 xxxx</span>
+              </p>
+               <Link 
+                href="https://github.com/hoangdev8653" 
                 target="_blank"
-                className="hover:underline"
-              >
-                H7 Life
+                className="flex items-center justify-center md:justify-start gap-3 hover:text-white transition-colors"
+               >
+                <Github className="w-5 h-5 text-indigo-500" />
+                <span>HoangDev8653</span>
               </Link>
-            </p>
+            </div>
           </div>
         </div>
 
-        <div className="border-white border-t-2 opacity-50"></div>
-
-        <div className="text-center my-4">
-          <p className="my-2">
-            © 2025 H7 Life. All rights reserved. | Powered by Offset Commerce.
+        <div className="mt-12 pt-8 border-t border-slate-800 text-center text-xs text-slate-500">
+          <p className="mb-2">
+            © 2026 Digital Asset Manager. All rights reserved. | Internal Structure for Enterprise.
           </p>
           <p>
-            Photography by <span className="font-semibold">Huy Hoàng</span>
+            Developed by <span className="font-semibold text-indigo-400">IT Department</span>
           </p>
         </div>
       </div>
