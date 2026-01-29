@@ -1,9 +1,20 @@
 import { axiosConfig } from "@/lib/axiosInstance";
 
-export const getAllUser = async () => {
+export const getAllUser = async (page?: number, limit?: number) => {
   return await axiosConfig({
     method: "get",
     url: "/users",
+    params: {
+      page,
+      limit
+    }
+  });
+};
+
+export const getProfile = async () => {
+  return await axiosConfig({
+    method: "GET",
+    url: "/users/me",
   });
 };
 
@@ -31,14 +42,14 @@ export const deleteUser = async (id: string) => {
 
 export const lockAccount = async (id: string) => {
   return await axiosConfig({
-    method: "POST",
+    method: "PATCH",
     url: `/users/${id}/lock`,
   });
 };
 
 export const unlockAccount = async (id: string) => {
   return await axiosConfig({
-    method: "POST",
+    method: "PATCH",
     url: `/users/${id}/unlock`,
   });
 };
@@ -46,7 +57,7 @@ export const unlockAccount = async (id: string) => {
 export const createUser = async (data: Record<string, any>) => {
   return await axiosConfig({
     method: "POST",
-    url: "/users",
+    url: "/auth/register",
     data,
   });
 };

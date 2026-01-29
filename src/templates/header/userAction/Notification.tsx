@@ -5,54 +5,24 @@ import { IoNotificationsOutline } from "react-icons/io5";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
+import { useGetNotificationByUser, useUpdateStatusNotification } from "@/hooks/useNotification"
 
 function Notification() {
+  const { data: notificationByUser } = useGetNotificationByUser();
+  const { mutate: updateStatusNotification } = useUpdateStatusNotification();
   const [isOpen, setIsOpen] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
+  const [notifications, setNotifications] = useState<any[]>([]);
 
-  // Dữ liệu mẫu (Mock data)
-  // Dữ liệu mẫu (Mock data)
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      message: "Chào mừng bạn đến với hệ thống!",
-      createdAt: new Date().toISOString(),
-      is_read: false,
-      post: {
-        slug: "welcome",
-        image: "https://placehold.co/400", // Simple placeholder
-        id: "1",
-      },
-    },
-    {
-      id: 2,
-      message: "Báo cáo ngày đã sẵn sàng.",
-      createdAt: new Date(Date.now() - 86400000).toISOString(),
-      is_read: true,
-      post: {
-        slug: "report",
-        image: "https://placehold.co/400",
-        id: "2",
-      },
-    },
-     {
-      id: 3,
-      message: "Tài sản mới đã được thêm vào.",
-      createdAt: new Date(Date.now() - 172800000).toISOString(),
-      is_read: true,
-      post: {
-        slug: "new-asset",
-        image: "https://placehold.co/400",
-        id: "3",
-      },
-    },
-  ]);
+  useEffect(() => {
+    if (notificationByUser?.data?.data) {
+      setNotifications(notificationByUser.data.data);
+    }
+  }, [notificationByUser]);
 
   const NotificationByUser = notifications;
-  const NotificationIsUnRead = notifications.filter((n) => !n.is_read);
-  const totalNotificationUnRead = NotificationIsUnRead.length;
-
-  // Removed broken useEffect
+  const NotificationIsUnRead = notifications?.filter((n) => !n.isRead);
+  const totalNotificationUnRead = NotificationIsUnRead?.length;
 
   const handleClickOutside = (event: MouseEvent) => {
     if (
@@ -76,10 +46,56 @@ function Notification() {
   }, [isOpen]);
 
   const handleReadNotification = (id: any) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)),
-    );
+    updateStatusNotification(id);
   };
+
+  const renderNotificationItem = (item: any, index: number) => (
+    <Link
+      onClick={() => handleReadNotification(item.id)}
+      className="relative block hover:bg-slate-800/50 rounded-lg p-2 transition-colors"
+      key={index}
+      href={"/asset"}
+    >
+      <div className="flex gap-3 items-start">
+        <div className="shrink-0 pt-1">
+          {item?.post?.image ? (
+            <Image
+              width={40}
+              height={40}
+              unoptimized
+              className="rounded-full w-10 h-10 object-cover"
+              src={item?.post?.image}
+              alt={item?.title}
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-blue-600/20 text-blue-500 flex items-center justify-center">
+              <IoNotificationsOutline className="text-xl" />
+            </div>
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm">
+            <span className="font-semibold block text-blue-400 truncate">{item?.title}</span>
+            <span className="text-slate-300 block line-clamp-2">{item?.message}</span>
+          </p>
+          <p className="text-xs text-slate-500 mt-1">
+            {new Date(item?.createdAt).toLocaleDateString("vi-VN", {
+              hour: '2-digit',
+              minute: '2-digit',
+              day: 'numeric',
+              month: 'numeric',
+              year: 'numeric'
+            })}
+          </p>
+        </div>
+        {!item?.isRead && (
+          <div className="shrink-0 self-center">
+            <div className="w-2.5 h-2.5 bg-blue-500 rounded-full ring-2 ring-slate-900"></div>
+          </div>
+        )}
+      </div>
+    </Link>
+  );
 
   return (
     <div ref={notificationRef} className="relative inline-block">
@@ -104,113 +120,48 @@ function Notification() {
           style={{ zIndex: "51" }}
           className="cursor-default absolute rounded-xl right-[-90px] w-[360px] max-h-[500px] overflow-y-auto p-4 bg-slate-900 border border-slate-700 shadow-2xl top-12 text-white"
         >
-          <div className="flex items-center justify-between mb-4">
-               <p className="font-bold text-xl">Thông báo</p>
+          <div className="flex items-center justify-between mb-2">
+            <p className="font-bold text-xl">Thông báo</p>
+            <span className="text-xs text-slate-400">{totalNotificationUnRead} chưa đọc</span>
           </div>
           <Tabs defaultValue="all" className="w-full">
             <TabsList className="bg-slate-800 p-1 rounded-lg w-full grid grid-cols-2">
-              <TabsTrigger 
-                className="rounded-md data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=inactive]:text-slate-400 hover:text-white transition-all" 
+              <TabsTrigger
+                className="rounded-md data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=inactive]:text-slate-400 hover:text-white transition-all py-1.5"
                 value="all"
               >
                 Tất cả
               </TabsTrigger>
-              <TabsTrigger 
-                className="rounded-md data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=inactive]:text-slate-400 hover:text-white transition-all" 
+              <TabsTrigger
+                className="rounded-md data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=inactive]:text-slate-400 hover:text-white transition-all py-1.5"
                 value="unread"
               >
                 Chưa đọc
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="all">
-              <Card className="border-none">
-                <CardContent className="border-none p-0 m-0 ">
+            <TabsContent value="all" className="mt-0">
+              <Card className="border-none bg-transparent">
+                <CardContent className="border-none p-0 m-0 space-y-1">
                   {NotificationByUser?.length > 0 ? (
-                    NotificationByUser?.map((item: any, index: number) => (
-                      <Link
-                        onClick={() => handleReadNotification(item.id)}
-                        className="relative"
-                        key={index}
-                        href={`/home/${item?.post?.slug}`}
-                      >
-                        <div className="flex gap-2 my-4 cursor-pointer">
-                          <div className="w-1/6">
-                            <Image
-                              width={48}
-                              height={48}
-                              unoptimized
-                              className="rounded-full w-12 h-12 object-cover"
-                              src={item?.post?.image}
-                              alt={item?.post?.id}
-                            />
-                          </div>
-                          <div className="flex-1 mr-2 flex items-center gap-2">
-                            <div>
-                              <p className="hover:opacity-80">
-                                {item?.message}
-                              </p>
-                              <p className="text-sm text-gray-300 opacity-80">
-                                {new Date(item?.createdAt).toLocaleDateString(
-                                  "vi-VN",
-                                )}
-                              </p>
-                            </div>
-                            {item?.is_read === false ? (
-                              <div className="w-2 h-2 bg-blue-700 rounded"></div>
-                            ) : (
-                              <></>
-                            )}
-                          </div>
-                        </div>
-                      </Link>
-                    ))
+                    NotificationByUser.map(renderNotificationItem)
                   ) : (
-                    <p className="text-gray-400 mx-2">
-                      Không có thông báo mới.
-                    </p>
+                    <div className="text-center py-2 text-slate-500">
+                      <IoNotificationsOutline className="text-4xl mx-auto mb-2 opacity-50" />
+                      <p>Không có thông báo mới.</p>
+                    </div>
                   )}
                 </CardContent>
               </Card>
             </TabsContent>
-            <TabsContent value="unread">
-              <Card className="border-none">
-                <CardContent className="border-none p-0 m-0">
+            <TabsContent value="unread" className="mt-0">
+              <Card className="border-none bg-transparent">
+                <CardContent className="border-none p-0 m-0 space-y-1">
                   {NotificationIsUnRead?.length > 0 ? (
-                    NotificationIsUnRead?.map((item: any, index: number) => (
-                      <Link
-                        onClick={() => handleReadNotification(item.id)}
-                        key={index}
-                        href={`/home/${item?.post?.slug}`}
-                      >
-                        <div className="flex gap-2 my-4">
-                          <div className="w-1/6">
-                            <Image
-                              width={48}
-                              height={48}
-                              unoptimized
-                              className="rounded-full w-12 h-12 object-cover"
-                              src={item?.post.image}
-                              alt={item?.post.id}
-                            />
-                          </div>
-                          <div className="flex-1 mr-2 flex items-center gap-2">
-                            <div>
-                              <p>{item?.message}</p>
-                              <p className="text-sm text-gray-300 opacity-80">
-                                {new Date(item?.createdAt).toLocaleDateString(
-                                  "vi-VN",
-                                )}
-                              </p>
-                            </div>
-                            <div className="w-2 h-2 bg-blue-700 rounded"></div>
-                          </div>
-                        </div>
-                      </Link>
-                    ))
+                    NotificationIsUnRead.map(renderNotificationItem)
                   ) : (
-                    <p className="text-gray-400 mx-4">
-                      Không có thông báo mới.
-                    </p>
+                    <div className="text-center py-2 text-slate-500">
+                      <p>Bạn đã đọc hết thông báo.</p>
+                    </div>
                   )}
                 </CardContent>
               </Card>

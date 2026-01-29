@@ -2,14 +2,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { deleteUser, getAllUser, getUser, lockAccount, unlockAccount, updateUser, createUser } from "@/apis/user"
 
-export const useGetAllUser = () => {
+export const useGetAllUser = (page?: number, limit?: number) => {
     return useQuery({
-        queryKey: ["user"],
+        queryKey: ["user", page, limit],
         queryFn: async () => {
-            const response = await getAllUser();
+            const response = await getAllUser(page, limit);
             return response
         },
-        staleTime: 1000 * 6 * 5
+        staleTime: 1000 * 6 * 5,
+        placeholderData: (previousData) => previousData
     })
 }
 

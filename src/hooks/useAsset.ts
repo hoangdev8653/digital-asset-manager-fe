@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAllAssets, createAsset, deleteAsset } from "@/apis/asset";
+import { getAllAssets, getAssetById, createAsset, deleteAsset } from "@/apis/asset";
 
 export const useGetAllAssets = () => {
   return useQuery({
-    queryKey: ["asset"],
+    queryKey: ["assets", "list"],
     queryFn: async () => {
       const response = await getAllAssets();
       return response;
@@ -12,9 +12,19 @@ export const useGetAllAssets = () => {
   });
 };
 
+export const useGetAssetById = (id: string) => {
+  return useQuery({
+    queryKey: ["assets", "detail", id],
+    queryFn: async () => {
+      const response = await getAssetById(id)
+      return response
+    },
+    enabled: !!id,
+  })
+}
+
 export const useCreateAsset = () => {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: createAsset,
     onSuccess: () => {

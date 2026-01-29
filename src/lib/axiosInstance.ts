@@ -13,7 +13,7 @@ export const setAccessToken = (token: string | null) => {
 };
 
 // Hàm xử lý hàng đợi các request bị lỗi 401 trong khi đang refresh token
-const processQueue = (error: string, token: string | null = null) => {
+const processQueue = (error: any, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
@@ -47,7 +47,7 @@ axiosConfig.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (error.response.status === 401 && !originalRequest._retry && !originalRequest.url?.includes("/auth/login")) {
       if (isRefreshing) {
         // Nếu đang refresh, đẩy request vào hàng đợi
         return new Promise(function (resolve, reject) {
@@ -70,7 +70,7 @@ axiosConfig.interceptors.response.use(
         // Không cần gửi refreshToken trong body vì nó đã nằm trong HttpOnly Cookie
         // withCredentials: true là bắt buộc để cookie được gửi đi
         const response = await axios.post(
-          "http://localhost:3007/users/refreshToken",
+          `${BASE_URL_LOCAL}auth/refresh`,
           {},
           { withCredentials: true },
         );
@@ -79,7 +79,7 @@ axiosConfig.interceptors.response.use(
           throw new Error("Refresh token failed");
         }
 
-        const newAccessToken = response.data?.newToken?.accessToken;
+        const newAccessToken = response.data?.access_token;
 
         if (!newAccessToken) {
           throw new Error("No access token returned");
@@ -98,7 +98,9 @@ axiosConfig.interceptors.response.use(
       } catch (error: any) {
         processQueue(error, null);
         isRefreshing = false;
-        window.location.href = "/login";
+        if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+          window.location.href = "/login";
+        }
         return Promise.reject(error);
       }
     }

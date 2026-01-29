@@ -1,9 +1,9 @@
 "use client"
 import React, { useState, ChangeEvent, FormEvent } from 'react';
-import {useLogin} from "@/hooks/useAuth"
+import { useLogin } from "@/hooks/useAuth"
 
 function Login() {
-  const {mutate: login, isPending} = useLogin()
+  const { mutate: login, isPending } = useLogin()
   const [formData, setFormData] = useState({
     email: '',
     password: '',

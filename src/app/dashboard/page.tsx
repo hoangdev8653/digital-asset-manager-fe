@@ -8,8 +8,8 @@ import {
   Search,
 } from "lucide-react";
 import { useGetAllUser } from "@/hooks/useUser";
-import {useGetAllAssets} from "@/hooks/useAsset"
-import {useGetAllReports} from "@/hooks/useReport"
+import { useGetAllAssets } from "@/hooks/useAsset"
+import { useGetAllReports } from "@/hooks/useReport"
 
 export default function DashboardPage() {
   const { data: users } = useGetAllUser();

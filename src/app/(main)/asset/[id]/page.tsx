@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { 
     Copy, 
@@ -26,32 +25,81 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {useGetAssetById} from "@/hooks/useAsset"
+import { formatDate } from "@/utils/format";
 
 export default function AssetDetailPage() {
   const params = useParams();
   const [showPassword, setShowPassword] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
-
-  // Mock data - In real app, fetch based on params.id
-  const asset = {
-    id: params.id,
-    name: "Google Gemini Advanced",
-    type: "AI Tool",
-    icon: "https://placehold.co/100x100/4f46e5/ffffff?text=G",
-    url: "https://gemini.google.com",
-    username: "marketing@company.com",
-    password: "VerySecurePassword123!",
-    owner: "Hoàng Dev",
-    createdAt: "2025-10-20",
-    lastAccessed: "2 giờ trước",
-    notes: "Tài khoản dùng chung cho team Content. Vui lòng không đổi mật khẩu khi chưa báo cáo."
-  };
+  const { data: assetData, isLoading } = useGetAssetById(params.id as string || "");
+  
+  const asset = assetData?.data?.data;
 
   const handleCopy = (text: string, field: string) => {
+    if (!text) return;
     navigator.clipboard.writeText(text);
     setCopied(field);
     setTimeout(() => setCopied(null), 2000);
   };
+
+  if (isLoading) {
+      return (
+        <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-4xl mx-auto">
+                {/* Header Skeleton */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 mb-6 flex items-center justify-between gap-6 animate-pulse">
+                    <div className="flex items-center gap-6 w-full">
+                        <div className="w-20 h-20 rounded-2xl bg-slate-200"></div>
+                        <div className="flex-1 space-y-3">
+                            <div className="h-8 bg-slate-200 rounded w-1/3"></div>
+                            <div className="h-4 bg-slate-200 rounded w-1/4"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-6">
+                    <div className="md:col-span-2 space-y-6">
+                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 animate-pulse">
+                            <div className="h-6 bg-slate-200 rounded w-1/4 mb-6"></div>
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <div className="h-4 bg-slate-200 rounded w-1/5"></div>
+                                    <div className="h-10 bg-slate-200 rounded w-full"></div>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="h-4 bg-slate-200 rounded w-1/5"></div>
+                                    <div className="h-10 bg-slate-200 rounded w-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="md:col-span-1 space-y-6">
+                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 animate-pulse">
+                            <div className="h-4 bg-slate-200 rounded w-1/2 mb-4"></div>
+                            <div className="space-y-4">
+                                <div className="flex justify-between"><div className="w-1/3 h-4 bg-slate-200 rounded"></div><div className="w-1/4 h-4 bg-slate-200 rounded"></div></div>
+                                <div className="flex justify-between"><div className="w-1/3 h-4 bg-slate-200 rounded"></div><div className="w-1/4 h-4 bg-slate-200 rounded"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      );
+  }
+
+  if (!asset) {
+    return <div className="min-h-screen bg-slate-50 flex items-center justify-center">Không tìm thấy tài sản</div>;
+  }
+
+
+  const formatKey = (key: string) => {
+    return key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  };
+
+  const hiddenFields = ['password', 'note', 'role'];
+  const dynamicFields = Object.entries(asset?.metadata || {}).filter(([key]) => !hiddenFields.includes(key));
 
   return (
     <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -61,18 +109,20 @@ export default function AssetDetailPage() {
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="flex items-center gap-6">
                 <div className="w-20 h-20 rounded-2xl bg-indigo-50 flex items-center justify-center text-3xl font-bold text-indigo-600 shadow-inner">
-                    {asset.name.charAt(0)}
+                    {asset?.title?.charAt(0)}
                 </div>
                 <div>
                     <div className="flex items-center gap-3 mb-1">
-                         <h1 className="text-3xl font-bold text-slate-900">{asset.name}</h1>
+                         <h1 className="text-3xl font-bold text-slate-900">{asset?.title}</h1>
                          <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-semibold">
-                            {asset.type}
+                            {asset?.assetType?.name || "Unknown Type"}
                          </span>
                     </div>
-                    <Link href={asset.url} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-indigo-500 flex items-center gap-1 text-sm">
-                        <Globe className="w-4 h-4" /> {asset.url}
-                    </Link>
+                    {asset?.url && (
+                        <Link href={asset?.url} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-indigo-500 flex items-center gap-1 text-sm">
+                            <Globe className="w-4 h-4" /> {asset?.url}
+                        </Link>
+                    )}
                 </div>
             </div>
 
@@ -86,13 +136,13 @@ export default function AssetDetailPage() {
                             <MoreHorizontal className="w-5 h-5 text-slate-500" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" className="bg-white border border-slate-200 rounded-lg">
                         <DropdownMenuLabel>Tác vụ</DropdownMenuLabel>
-                        <DropdownMenuItem className="gap-2">
+                        <DropdownMenuItem className="gap-2 cursor-pointer hover:bg-slate-50">
                             <History className="w-4 h-4" /> Xem lịch sử
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-600 gap-2">
+                        <DropdownMenuItem className="text-red-600 gap-2 cursor-pointer hover:bg-slate-50">
                             <Trash2 className="w-4 h-4" /> Xóa tài sản
                         </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -107,60 +157,73 @@ export default function AssetDetailPage() {
             <div className="md:col-span-2 space-y-6">
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
                     <h2 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-                        <Key className="w-5 h-5 text-indigo-500" /> Thông tin đăng nhập
+                        <Key className="w-5 h-5 text-indigo-500" /> Thông tin tài sản
                     </h2>
 
                     <div className="space-y-6">
-                        {/* Username Field */}
-                        <div className="group">
-                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 block">Email / Username</label>
-                            <div className="flex gap-2">
-                                <div className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-900 font-mono text-sm group-hover:border-indigo-300 transition-colors">
-                                    {asset.username}
-                                </div>
-                                <Button 
-                                    variant="outline" 
-                                    className="px-4 border-slate-200"
-                                    onClick={() => handleCopy(asset.username, 'username')}
-                                >
-                                    {copied === 'username' ? <span className="text-green-600 font-medium text-xs">Copied!</span> : <Copy className="w-4 h-4 text-slate-500" />}
-                                </Button>
-                            </div>
-                        </div>
-
-                         {/* Password Field */}
-                        <div className="group">
-                            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 block">Mật khẩu</label>
-                            <div className="flex gap-2 relative">
-                                <div className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-900 font-mono text-sm group-hover:border-indigo-300 transition-colors flex items-center justify-between">
-                                    <span>
-                                        {showPassword ? asset.password : "•".repeat(20)}
-                                    </span>
-                                     <button 
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        className="p-1 hover:bg-slate-200 rounded text-slate-400 hover:text-slate-600 transition-colors"
+                         {/* Dynamic Fields */}
+                        {dynamicFields.map(([key, value]: [string, any]) => (
+                             <div className="group" key={key}>
+                                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 block">
+                                    {formatKey(key)}
+                                </label>
+                                <div className="flex gap-2">
+                                    <div className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-900 font-mono text-sm group-hover:border-indigo-300 transition-colors break-all">
+                                        {value}
+                                    </div>
+                                    <Button 
+                                        variant="outline" 
+                                        className="px-4 border-slate-200"
+                                        onClick={() => handleCopy(String(value), key)}
                                     >
-                                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                    </button>
+                                        {copied === key ? <span className="text-green-600 font-medium text-xs">Copied!</span> : <Copy className="w-4 h-4 text-slate-500" />}
+                                    </Button>
                                 </div>
-                                <Button 
-                                    variant="outline" 
-                                    className="px-4 border-slate-200"
-                                     onClick={() => handleCopy(asset.password, 'password')}
-                                >
-                                   {copied === 'password' ? <span className="text-green-600 font-medium text-xs">Copied!</span> : <Copy className="w-4 h-4 text-slate-500" />}
-                                </Button>
                             </div>
-                        </div>
+                        ))}
+
+                         {/* Password Field - Special Case */}
+                         {asset?.metadata?.password && (
+                            <div className="group">
+                                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 block">Mật khẩu</label>
+                                <div className="flex gap-2 relative">
+                                    <div className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-900 font-mono text-sm group-hover:border-indigo-300 transition-colors flex items-center justify-between">
+                                        <span>
+                                            {showPassword ? asset?.metadata?.password : "•".repeat(20)}
+                                        </span>
+                                        <button 
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="p-1 hover:bg-slate-200 rounded text-slate-400 hover:text-slate-600 transition-colors"
+                                        >
+                                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                        </button>
+                                    </div>
+                                    <Button 
+                                        variant="outline" 
+                                        className="px-4 border-slate-200"
+                                        onClick={() => handleCopy(asset?.metadata?.password, 'password')}
+                                    >
+                                    {copied === 'password' ? <span className="text-green-600 font-medium text-xs">Copied!</span> : <Copy className="w-4 h-4 text-slate-500" />}
+                                    </Button>
+                                </div>
+                            </div>
+                         )}
+
+                         {dynamicFields.length === 0 && !asset?.metadata?.password && (
+                             <p className="text-slate-500 italic">Không có thông tin chi tiết.</p>
+                         )}
                     </div>
                 </div>
 
-                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                     <h2 className="text-lg font-bold text-slate-900 mb-4">Ghi chú</h2>
-                     <p className="text-slate-600 text-sm leading-relaxed bg-yellow-50 p-4 rounded-lg border border-yellow-100">
-                        {asset.notes}
-                     </p>
-                 </div>
+                 {/* Notes Section */}
+                 {asset?.metadata?.note && (
+                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h2 className="text-lg font-bold text-slate-900 mb-4">Ghi chú</h2>
+                        <p className="text-slate-600 text-sm leading-relaxed bg-yellow-50 p-4 rounded-lg border border-yellow-100">
+                            {asset?.metadata?.note}
+                        </p>
+                    </div>
+                 )}
             </div>
 
             {/* Right Column: Metadata */}
@@ -172,25 +235,23 @@ export default function AssetDetailPage() {
                             <span className="text-slate-500 flex items-center gap-2">
                                 <ShieldCheck className="w-4 h-4" /> Trạng thái
                             </span>
-                            <span className="text-green-600 font-medium bg-green-50 px-2 py-0.5 rounded-full">Active</span>
+                            <span className={`font-medium px-2 py-0.5 rounded-full ${asset?.status === 'assigned' ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-600'}`}>
+                                {asset?.status === 'assigned' ? 'Đã cấp' : 'Sẵn sàng'}
+                            </span>
                         </li>
+                        {asset?.metadata?.role && (
+                            <li className="flex items-start justify-between text-sm">
+                                <span className="text-slate-500 flex items-center gap-2">
+                                    <User className="w-4 h-4" /> Vai trò
+                                </span>
+                                <span className="text-slate-900">{asset?.metadata?.role}</span>
+                            </li>
+                        )}
                          <li className="flex items-start justify-between text-sm">
                             <span className="text-slate-500 flex items-center gap-2">
-                                <User className="w-4 h-4" /> Người tạo
+                                <Calendar className="w-4 h-4" /> Ngày hết hạn
                             </span>
-                            <span className="text-slate-900">{asset.owner}</span>
-                        </li>
-                         <li className="flex items-start justify-between text-sm">
-                            <span className="text-slate-500 flex items-center gap-2">
-                                <Calendar className="w-4 h-4" /> Ngày tạo
-                            </span>
-                            <span className="text-slate-900">{asset.createdAt}</span>
-                        </li>
-                         <li className="flex items-start justify-between text-sm pt-4 border-t border-slate-100">
-                             <div className="w-full">
-                                <span className="text-slate-500 block mb-1 text-xs">Truy cập lần cuối</span>
-                                <span className="text-slate-900 font-medium">{asset.lastAccessed}</span>
-                             </div>
+                            <span className="text-slate-900">{asset?.expired_at ? formatDate(asset?.expired_at) : "Vĩnh viễn"}</span>
                         </li>
                     </ul>
                  </div>

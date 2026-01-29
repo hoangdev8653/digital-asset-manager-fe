@@ -18,6 +18,14 @@ export const logout = async () => {
 export const refreshToken = async () => {
   return await axiosConfig({
     method: "POST",
-    url: "/user/refreshToken",
+    url: "/auth/refresh",
+    withCredentials: true,
+  });
+};
+
+export const getMe = async () => {
+  return await axiosConfig({
+    method: "GET",
+    url: "/users/me",
   });
 };

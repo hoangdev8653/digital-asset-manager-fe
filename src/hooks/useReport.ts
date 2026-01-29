@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createReport, deleteReport, getAllReports, getReport, getReportByUser, updateReport } from "@/apis/report"
+import { toast } from "react-toastify";
 
 export const useGetAllReports = () => {
     return useQuery({
@@ -47,12 +48,15 @@ export const useCreateReport = () => {
 
 export const useUpdateReport = () => {
     const queryClient = useQueryClient();
-
     return useMutation({
         mutationFn: ({ id, data }: { id: string; data: any }) => updateReport(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["reports"] });
+            toast.success("Cập nhật báo cáo thành công");
         },
+        onError: (error: any) => {
+            toast.error(error?.response?.data?.message || "Có lỗi xảy ra khi cập nhật báo cáo");
+        }
     });
 };
 

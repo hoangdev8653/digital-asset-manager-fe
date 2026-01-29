@@ -10,7 +10,14 @@ export const getAllNotifications = async () => {
 export const getNotificationByUser = async () => {
   return await axiosConfig({
     method: "GET",
-    url: "/notifications/user",
+    url: "/notifications/me",
+  });
+};
+
+export const updateStatusNotification = async (id: string) => {
+  return await axiosConfig({
+    method: "PATCH",
+    url: `/notifications/${id}`,
   });
 };
 

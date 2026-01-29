@@ -7,12 +7,20 @@ export const getAllAssignments = async () => {
   });
 };
 
+export const getAssignmentByUser = async () => {
+  return await axiosConfig({
+    method: "GET",
+    url: "/assignments/me"
+  })
+}
+
 export const getAssignment = async (id: string) => {
   return await axiosConfig({
     method: "GET",
     url: `/assignments/${id}`,
   });
 };
+
 
 export const createAssignment = async (data: any) => {
   return await axiosConfig({

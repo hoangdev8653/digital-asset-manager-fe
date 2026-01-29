@@ -22,6 +22,14 @@ export const createAssetType = async (data: any) => {
   });
 };
 
+export const updateAssetType = async (id: string, data: any) => {
+  return await axiosConfig({
+    method: "PATCH",
+    url: `/asset-types/${id}`,
+    data: data,
+  });
+};
+
 export const deleteAssetType = async (id: string) => {
   return await axiosConfig({
     method: "DELETE",

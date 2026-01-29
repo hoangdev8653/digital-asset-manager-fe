@@ -9,7 +9,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Users,
   Search,
   MoreHorizontal,
   UserPlus,
@@ -20,7 +19,7 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
-import { useGetAllUser, useLockAccount, useUnlockAccount, useCreateUser } from "../../../hooks/useUser";
+import { useGetAllUser, useLockAccount, useUnlockAccount, useCreateUser, useUpdateUser } from "../../../hooks/useUser";
 import { toast } from "react-toastify";
 import {
   Dialog,
@@ -29,62 +28,94 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function UsersPage() {
-    const {data: users, isLoading, error} = useGetAllUser()
-    const lockMutation = useLockAccount();
-    const unlockMutation = useUnlockAccount();
-    const createUserMutation = useCreateUser();
+  const [page, setPage] = useState(1);
+  const limit = 10;
+  const { data: users, isLoading, error } = useGetAllUser(page, limit)
+  const lockMutation = useLockAccount();
+  const unlockMutation = useUnlockAccount();
+  const createUserMutation = useCreateUser();
+  const updateUserMutation = useUpdateUser();
+  const [isAddUserOpen, setIsAddUserOpen] = useState(false);
+  const [isEditUserOpen, setIsEditUserOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [newUser, setNewUser] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "EMPLOYEE"
+  });
 
-    // State cho Modal thêm người dùng
-    const [isAddUserOpen, setIsAddUserOpen] = useState(false);
-    const [newUser, setNewUser] = useState({
-        name: "",
-        email: "",
-        password: "",
-        role: "EMPLOYEE" // Mặc định là employee
+  const handleAddUser = () => {
+    if (!newUser.name || !newUser.email || !newUser.password) {
+      toast.error("Vui lòng điền đầy đủ thông tin");
+      return;
+    }
+    createUserMutation.mutate(newUser, {
+      onSuccess: () => {
+        toast.success("Thêm người dùng thành công");
+        setIsAddUserOpen(false);
+        setNewUser({ name: "", email: "", password: "", role: "EMPLOYEE" });
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || "Có lỗi xảy ra khi thêm người dùng");
+      }
     });
+  };
 
-    const handleAddUser = () => {
-        if (!newUser.name || !newUser.email || !newUser.password) {
-            toast.error("Vui lòng điền đầy đủ thông tin");
-            return;
-        }
+  const handleEditClick = (user: any) => {
+    setEditingUser({ ...user });
+    setIsEditUserOpen(true);
+  };
 
-        createUserMutation.mutate(newUser, {
-            onSuccess: () => {
-                toast.success("Thêm người dùng thành công");
-                setIsAddUserOpen(false);
-                setNewUser({ name: "", email: "", password: "", role: "EMPLOYEE" });
-            },
-            onError: (error: any) => {
-                toast.error(error?.response?.data?.message || "Có lỗi xảy ra khi thêm người dùng");
-            }
-        });
-    };
+  const handleUpdateUser = () => {
+    if (!editingUser) return;
 
-    const handleLockUnlock = (user: any) => {
-        if (user.status === 'LOCKED') {
-            unlockMutation.mutate(user.id, {
-                onSuccess: () => toast.success(`Đã mở khóa tài khoản ${user.username}`),
-                onError: () => toast.error("Có lỗi xảy ra khi mở khóa")
-            });
-        } else {
-            lockMutation.mutate(user.id, {
-                onSuccess: () => toast.success(`Đã khóa tài khoản ${user.username}`),
-                onError: () => toast.error("Có lỗi xảy ra khi khóa tài khoản")
-            });
-        }
-    };
-    
-    // console.log(users?.data?.data) -> Clean up console log
+    updateUserMutation.mutate({
+      id: editingUser.id,
+      data: { role: editingUser.role }
+    }, {
+      onSuccess: () => {
+        toast.success(`Cập nhật vai trò cho ${editingUser.name} thành công`);
+        setIsEditUserOpen(false);
+        setEditingUser(null);
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || "Có lỗi xảy ra khi cập nhật người dùng");
+      }
+    });
+  };
+
+  const handleLockUnlock = (user: any) => {
+    if (user.status === 'INACTIVE') {
+      unlockMutation.mutate(user.id, {
+        onSuccess: () => toast.success(`Đã mở khóa tài khoản ${user.name}`),
+        onError: () => toast.error("Có lỗi xảy ra khi mở khóa tài khoản")
+      });
+    } else {
+      lockMutation.mutate(user.id, {
+        onSuccess: () => toast.success(`Đã khóa tài khoản ${user.name}`),
+        onError: () => toast.error("Có lỗi xảy ra khi khóa tài khoản")
+      });
+    }
+  };
+
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
@@ -94,18 +125,15 @@ export default function UsersPage() {
             Quản lý danh sách người dùng và phân quyền hệ thống.
           </p>
         </div>
-        <button 
-            onClick={() => setIsAddUserOpen(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-blue-200 flex items-center gap-2"
+        <button
+          onClick={() => setIsAddUserOpen(true)}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-blue-200 flex items-center gap-2"
         >
           <UserPlus className="w-5 h-5" />
           <span>Thêm người dùng</span>
         </button>
       </div>
-
-      {/* Table Container */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        {/* Search & Filter Bar */}
         <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex gap-4">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -116,8 +144,6 @@ export default function UsersPage() {
             />
           </div>
         </div>
-
-        {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-50 text-slate-500 font-bold uppercase text-[11px] tracking-widest border-b border-slate-100">
@@ -155,52 +181,50 @@ export default function UsersPage() {
                   </td>
                   <td className="px-6 py-4">
                     <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                        user.status === "Active"
-                          ? "bg-emerald-100 text-emerald-700"
-                          : "bg-slate-100 text-slate-500"
-                      }`}
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${user.status === "ACTIVE"
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "bg-slate-100 text-slate-500"
+                        }`}
                     >
                       <span
-                        className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
-                          user.status === "Active"
-                            ? "bg-emerald-500"
-                            : "bg-slate-400"
-                        }`}
+                        className={`w-1.5 h-1.5 rounded-full mr-1.5 ${user.status === "ACTIVE"
+                          ? "bg-emerald-500"
+                          : "bg-slate-400"
+                          }`}
                       ></span>
                       {user.status}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end">
-                        <DropdownMenu>
+                      <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button className="h-8 w-8 p-0 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all ring-0 outline-none border-none shadow-none bg-transparent">
+                          <Button className="h-8 w-8 p-0 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all ring-0 outline-none border-none shadow-none bg-transparent">
                             <MoreHorizontal className="w-5 h-5" />
-                            </Button>
+                          </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-[160px] bg-white border border-slate-200 shadow-xl z-50">
-                            <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="cursor-pointer gap-2">
-                            <Pencil className="w-4 h-4"/> Chỉnh sửa
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                                className="cursor-pointer gap-2"
-                                onClick={() => handleLockUnlock(user)}
-                            >
-                            {user.status === 'LOCKED' ? (
-                                <><Unlock className="w-4 h-4 text-emerald-600"/> Mở khóa</>
+                          <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="cursor-pointer gap-2" onClick={() => handleEditClick(user)}>
+                            <Pencil className="w-4 h-4" /> Chỉnh sửa
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="cursor-pointer gap-2"
+                            onClick={() => handleLockUnlock(user)}
+                          >
+                            {user.status === 'INACTIVE' ? (
+                              <><Unlock className="w-4 h-4 text-emerald-600" /> Mở khóa</>
                             ) : (
-                                <><Lock className="w-4 h-4 text-orange-600"/> Khóa TK</>
+                              <><Lock className="w-4 h-4 text-orange-600" /> Khóa</>
                             )}
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="cursor-pointer gap-2 text-red-600 focus:text-red-600 group">
-                            <Trash2 className="w-4 h-4 group-hover:text-red-700"/> Xóa
-                            </DropdownMenuItem>
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="cursor-pointer gap-2 text-red-600 focus:text-red-600 group">
+                            <Trash2 className="w-4 h-4 group-hover:text-red-700" /> Xóa
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
-                        </DropdownMenu>
+                      </DropdownMenu>
                     </div>
                   </td>
                 </tr>
@@ -208,22 +232,66 @@ export default function UsersPage() {
             </tbody>
           </table>
         </div>
+        <div className="p-4 border-t border-slate-100 bg-slate-50/30 flex justify-center">
+          {users?.data?.totalPages > 1 && (
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (page > 1) setPage(page - 1);
+                    }}
+                    className={page <= 1 ? "pointer-events-none opacity-50" : ""}
+                  />
+                </PaginationItem>
 
-        {/* Pagination Placeholder */}
-        <div className="p-4 border-t border-slate-100 bg-slate-50/30 flex justify-between items-center text-slate-500 text-xs font-medium">
-          <span>Hiển thị 5 trên 24 thành viên</span>
-          <div className="flex gap-2">
-            <button className="px-3 py-1 border border-slate-200 rounded bg-white hover:bg-slate-50 disabled:opacity-50">
-              Trước
-            </button>
-            <button className="px-3 py-1 border border-slate-200 rounded bg-white hover:bg-slate-50">
-              Sau
-            </button>
-          </div>
+                {Array.from({ length: users?.data?.totalPages || 0 }, (_, i) => i + 1).map((p) => {
+                  if (
+                    p === 1 ||
+                    p === users?.data?.totalPages ||
+                    (p >= page - 1 && p <= page + 1)
+                  ) {
+                    return (
+                      <PaginationItem key={p}>
+                        <PaginationLink
+                          href="#"
+                          isActive={page === p}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setPage(p);
+                          }}
+                        >
+                          {p}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  }
+                  if (p === page - 2 || p === page + 2) {
+                    return (
+                      <PaginationItem key={p}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    );
+                  }
+                  return null;
+                })}
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (page < (users?.data?.totalPages || 1)) setPage(page + 1);
+                    }}
+                    className={page >= (users?.data?.totalPages || 1) ? "pointer-events-none opacity-50" : ""}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
         </div>
       </div>
-
-      {/* Add User Dialog */}
       <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
         <DialogContent className="sm:max-w-[425px] bg-white">
           <DialogHeader>
@@ -273,24 +341,80 @@ export default function UsersPage() {
                 Vai trò
               </Label>
               <div className="col-span-3">
-                  <Select 
-                    value={newUser.role} 
-                    onValueChange={(value) => setNewUser({...newUser, role: value})}
-                  >
-                    <SelectTrigger>
-                        <SelectValue placeholder="Chọn vai trò" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white">
-                        <SelectItem value="ADMIN">Quản trị viên (Admin)</SelectItem>
-                        <SelectItem value="EMPLOYEE">Nhân viên (Employee)</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <Select
+                  value={newUser.role}
+                  onValueChange={(value) => setNewUser({ ...newUser, role: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn vai trò" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    <SelectItem value="ADMIN">Quản trị viên (Admin)</SelectItem>
+                    <SelectItem value="EMPLOYEE">Nhân viên (Employee)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
           <DialogFooter>
             <Button type="submit" onClick={handleAddUser} disabled={createUserMutation.isPending}>
               {createUserMutation.isPending ? "Đang thêm..." : "Thêm người dùng"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
+        <DialogContent className="sm:max-w-[425px] bg-white">
+          <DialogHeader>
+            <DialogTitle>Cập nhật vai trò người dùng</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="edit-name" className="text-right">
+                Tên
+              </Label>
+              <Input
+                id="edit-name"
+                value={editingUser?.name || ""}
+                disabled
+                className="col-span-3 bg-slate-100"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="edit-email" className="text-right">
+                Email
+              </Label>
+              <Input
+                id="edit-email"
+                value={editingUser?.email || ""}
+                disabled
+                className="col-span-3 bg-slate-100"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="edit-role" className="text-right">
+                Vai trò
+              </Label>
+              <div className="col-span-3">
+                <Select
+                  value={editingUser?.role}
+                  onValueChange={(value) => setEditingUser({ ...editingUser, role: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn vai trò" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    <SelectItem value="ADMIN">Quản trị viên (Admin)</SelectItem>
+                    <SelectItem value="EMPLOYEE">Nhân viên (Employee)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="submit" onClick={handleUpdateUser} disabled={updateUserMutation.isPending}>
+              {updateUserMutation.isPending ? "Đang cập nhật..." : "Lưu thay đổi"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { createAssignment, deleteAssignment, getAllAssignments, getAssignment } from "@/apis/assignment"
+import { createAssignment, deleteAssignment, getAllAssignments, getAssignment, getAssignmentByUser } from "@/apis/assignment"
 
 export const useGetAllAssignments = () => {
     return useQuery({
@@ -17,6 +17,17 @@ export const useGetAssignment = (id: string) => {
         queryKey: ["assignment", id],
         queryFn: async () => {
             const response = await getAssignment(id);
+            return response.data;
+        },
+        staleTime: 1000 * 60 * 5,
+    });
+};
+
+export const useGetAssignmentByUser = () => {
+    return useQuery({
+        queryKey: ["assignment-user"],
+        queryFn: async () => {
+            const response = await getAssignmentByUser();
             return response.data;
         },
         staleTime: 1000 * 60 * 5,
