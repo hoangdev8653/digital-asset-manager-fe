@@ -31,7 +31,7 @@ export const axiosConfig = axios.create({
 
 axiosConfig.interceptors.request.use(
   function (config) {
-    if (accessToken) {
+    if (accessToken && !config.url?.includes("/auth/login") && !config.url?.includes("/auth/register")) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
@@ -47,7 +47,7 @@ axiosConfig.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response.status === 401 && !originalRequest._retry && !originalRequest.url?.includes("/auth/login")) {
+    if (error.response.status === 401 && !originalRequest._retry && !originalRequest.url?.includes("/auth/login") && !originalRequest.url?.includes("/auth/refresh")) {
       if (isRefreshing) {
         // Nếu đang refresh, đẩy request vào hàng đợi
         return new Promise(function (resolve, reject) {
@@ -66,20 +66,15 @@ axiosConfig.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Gọi API refresh token
-        // Không cần gửi refreshToken trong body vì nó đã nằm trong HttpOnly Cookie
-        // withCredentials: true là bắt buộc để cookie được gửi đi
         const response = await axios.post(
           `${BASE_URL_LOCAL}auth/refresh`,
           {},
           { withCredentials: true },
         );
 
-        if (response.status !== 200) {
-          throw new Error("Refresh token failed");
-        }
 
-        const newAccessToken = response.data?.access_token;
+
+        const newAccessToken = response.data?.access_token || response.data?.data?.access_token;
 
         if (!newAccessToken) {
           throw new Error("No access token returned");

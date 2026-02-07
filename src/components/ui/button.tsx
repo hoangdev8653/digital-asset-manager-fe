@@ -40,6 +40,7 @@ const buttonVariants = cva(
 
 function Button({
   className,
+  cursor = "pointer",
   variant = "default",
   size = "default",
   asChild = false,
@@ -47,6 +48,7 @@ function Button({
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
+    cursor?: string
   }) {
   const Comp = asChild ? Slot : "button"
 
@@ -55,7 +57,7 @@ function Button({
       data-slot="button"
       data-variant={variant}
       data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ variant, size, className }), cursor)}
       {...props}
     />
   )

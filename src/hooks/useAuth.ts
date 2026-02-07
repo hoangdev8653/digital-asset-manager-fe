@@ -8,13 +8,16 @@ import { useAuthStore } from "@/store/auth";
 export const useLogin = () => {
   const router = useRouter();
   const { setUser } = useAuthStore();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: login,
     onSuccess: async (response: any) => {
-      const { access_token } = response.data;
+      const access_token = response.data?.access_token || response.data?.data?.access_token;
 
       setAccessToken(access_token);
+      queryClient.setQueryData(["auth-init"], access_token);
+
       toast.success("Đăng nhập thành công ✅");
 
       try {
@@ -23,18 +26,16 @@ export const useLogin = () => {
       } catch (error) {
         console.error("Failed to fetch user info:", error);
       }
-
-      setTimeout(() => {
-        // Role check logic might need to be updated if user role comes from getMe
-        // Assuming userResponse.data has role
-        const role = useAuthStore.getState().user?.role;
-        if (role === "ADMIN") {
-          router.push("/dashboard");
-        } else {
-          router.push("/home");
-        }
-      }, 1000);
+      const role = useAuthStore.getState().user?.data?.data?.role;
+      if (role === "ADMIN") {
+        router.push("/dashboard");
+      } else if (role === "USER") {
+        router.push("/home");
+      } else {
+        router.push("/login");
+      }
     },
+
     onError: (error: any) => {
       console.error("Login failed:", error);
       const message = error?.response?.data?.message || "Đăng nhập thất bại ❌";
@@ -84,23 +85,30 @@ export const useAuthInit = () => {
     queryFn: async () => {
       try {
         const response = await refreshToken();
-        const { access_token } = response?.data;
+        const access_token = response?.data?.access_token || response?.data?.data?.access_token;
         if (access_token) {
           setAccessToken(access_token);
           // Fetch user info immediately after restoring token
-          const userResponse = await getMe();
-          setUser(userResponse.data);
+          try {
+            const userResponse = await getMe();
+            setUser(userResponse?.data);
+          } catch (e) {
+            console.error("Error fetching user detail", e);
+          }
         }
-        return access_token;
-      } catch (error) {
-        // Nếu lỗi (refresh token hết hạn), không làm gì cả, user sẽ ở trạng thái chưa login
-        return null;
+        return access_token || null;
+      } catch (error: any) {
+        // Nếu lỗi 401 (refresh token hết hạn/không có), coi như là khách (Guest) -> return null
+        if (error.response?.status === 401) {
+          return null;
+        }
+        // Nếu lỗi khác (mạng, server 500), throw để React Query retry
+        throw error;
       }
     },
-    // Chỉ chạy 1 lần khi mount, không tự động refetch
     refetchOnWindowFocus: false,
     refetchOnMount: true,
-    retry: false,
+    retry: 1,
     staleTime: Infinity,
   });
 };

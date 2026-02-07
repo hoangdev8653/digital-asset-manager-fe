@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-interface User {
+interface UserData {
     id: string;
     email: string;
     name: string;
@@ -8,6 +8,10 @@ interface User {
     department?: string;
     avatar?: string;
     created_at?: string;
+}
+
+interface User {
+    data: UserData;
 }
 
 interface AuthState {

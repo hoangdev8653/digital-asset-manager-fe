@@ -19,7 +19,10 @@ function Login() {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    login(formData);
+    login({
+      email: formData.email.trim(),
+      password: formData.password.trim(),
+    });
   };
 
   return (
