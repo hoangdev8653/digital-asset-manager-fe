@@ -7,7 +7,7 @@ export const useGetAllUser = (page?: number, limit?: number) => {
         queryKey: ["user", page, limit],
         queryFn: async () => {
             const response = await getAllUser(page, limit);
-            return response
+            return response.data
         },
         staleTime: 1000 * 6 * 5,
         placeholderData: (previousData) => previousData
@@ -51,7 +51,7 @@ export const useUpdateUser = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: updateUser,
+        mutationFn: ({ id, data }: { id: string, data: any }) => updateUser(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["user"] });
         }

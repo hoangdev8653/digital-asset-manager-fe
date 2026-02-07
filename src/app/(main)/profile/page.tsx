@@ -27,12 +27,21 @@ import { useAuthStore } from "@/store/auth"
 import { useGetReportByUser } from "@/hooks/useReport"
 import { useGetAssignmentByUser } from "@/hooks/useAssignment"
 
-export default function ProfilePage() {
+export default function Profile() {
     const { user } = useAuthStore();
     const { data: reports } = useGetReportByUser();
     const { data: assignments } = useGetAssignmentByUser();
 
-    console.log(reports);
+    const userData = user?.data || user || {};
+    console.log(userData);
+
+    const reportCount = Array.isArray(reports?.data)
+        ? reports.data.length
+        : (Array.isArray(reports?.data?.data) ? reports.data.data.length : 0);
+
+    const assignmentCount = Array.isArray(assignments?.data)
+        ? assignments.data.length
+        : (Array.isArray(assignments?.data?.data) ? assignments.data.data.length : 0);
 
     const activities = [
         { action: "Logged in from Chrome on Windows", time: "Just now", ip: "192.168.1.1" },
@@ -41,6 +50,11 @@ export default function ProfilePage() {
         { action: "Failed login attempt", time: "3 days ago", ip: "113.22.1.5", alert: true },
     ];
 
+    const formatDate = (dateString: string | undefined) => {
+        if (!dateString) return "N/A";
+        return new Date(dateString).toLocaleDateString("vi-VN");
+    };
+
     return (
         <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8">
             <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -48,22 +62,19 @@ export default function ProfilePage() {
                     <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 text-center">
                         <div className="relative w-24 h-24 mx-auto mb-4">
                             <Avatar className="w-24 h-24 border-4 border-slate-50 shadow-sm">
-                                <AvatarImage src={user?.data?.avatar} />
-                                <AvatarFallback>HD</AvatarFallback>
+                                <AvatarImage src={userData?.data?.avatar} />
+                                <AvatarFallback>{userData?.data?.name?.substring(0, 2).toUpperCase() || "HD"}</AvatarFallback>
                             </Avatar>
                             <div className="absolute bottom-0 right-0 w-6 h-6 bg-green-500 border-2 border-white rounded-full"></div>
                         </div>
-                        <h2 className="text-xl font-bold text-slate-900">{user?.data?.name}</h2>
-                        <p className="text-slate-500 text-sm mb-4">{user?.data?.role}</p>
+                        <h2 className="text-xl font-bold text-slate-900">{userData?.data?.name || "Người dùng"}</h2>
+                        <p className="text-slate-500 text-sm mb-4">{userData?.data?.role || "Thành viên"}</p>
                         <div className="flex flex-col gap-2 text-sm text-slate-600 text-left px-2">
                             <div className="flex items-center gap-2">
-                                <Mail className="w-4 h-4 text-slate-400" /> <span className="truncate">{user?.data?.email}</span>
+                                <Mail className="w-4 h-4 text-slate-400" /> <span className="truncate">{userData?.data?.email || "Chưa cập nhật email"}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Shield className="w-4 h-4 text-slate-400" /> {user?.data?.department}
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Calendar className="w-4 h-4 text-slate-400" /> Joined {user?.data?.created_at}
+                                <Calendar className="w-4 h-4 text-slate-400" /> Joined {formatDate(userData?.created_at || userData?.createdAt)}
                             </div>
                         </div>
                     </div>
@@ -85,11 +96,11 @@ export default function ProfilePage() {
                             <div className="grid md:grid-cols-3 gap-6 mb-8">
                                 <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
                                     <h3 className="text-slate-500 text-sm font-medium mb-2">Tài sản sở hữu</h3>
-                                    <div className="text-3xl font-bold text-slate-900"> {assignments?.data?.length}</div>
+                                    <div className="text-3xl font-bold text-slate-900"> {assignmentCount}</div>
                                 </div>
                                 <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
                                     <h3 className="text-slate-500 text-sm font-medium mb-2">Báo cáo sự cố</h3>
-                                    <div className="text-3xl font-bold text-slate-900">{reports?.data?.length || 2}</div>
+                                    <div className="text-3xl font-bold text-slate-900">{reportCount}</div>
                                 </div>
                                 <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
                                     <h3 className="text-slate-500 text-sm font-medium mb-2">Điểm bảo mật</h3>
