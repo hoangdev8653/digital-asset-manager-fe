@@ -10,10 +10,11 @@ import {
   Settings,
   ArrowUp,
   LogOut,
+  Layers,
 } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { ThemeToggle } from "../ThemeToggle";
 import { useLogout } from "@/hooks/useAuth";
-import { useAuthStore } from "@/store/auth";
 
 const navItems = [
   { name: "Overview", href: "/dashboard", icon: Home },
@@ -26,52 +27,48 @@ const navItems = [
 
 export default function Sidebar() {
   const { mutate: logout } = useLogout();
-  const { user } = useAuthStore();
+  const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-surface border-r border-slate-700/50 min-h-screen flex flex-col fixed left-0 top-0 bottom-0 z-50">
+    <aside className="w-64 bg-surface border-r border-border min-h-screen flex flex-col fixed left-0 top-0 bottom-0 z-50">
       {/* Logo Area */}
       <div className="p-6 flex items-center gap-2">
-        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-          <span className="font-heading font-bold text-white text-lg">D</span>
+        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/30">
+          <Layers className="w-5 h-5 text-white" />
         </div>
-        <h1 className="text-xl font-heading font-bold text-white tracking-tight">
+        <h1 className="text-xl font-heading font-bold text-primary tracking-tight">
           DAM<span className="text-primary">Pro</span>
         </h1>
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 px-3 space-y-1 mt-4">
-        {navItems.map((item) => (
-          <Link
-            key={item.name}
-            href={item.href}
-            className="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:bg-slate-700/30 hover:text-white rounded-lg transition-all duration-200 group"
-          >
-            <item.icon className="w-5 h-5 text-slate-500 group-hover:text-secondary transition-colors" />
-            <span className="font-body font-medium text-sm">{item.name}</span>
-          </Link>
-        ))}
+        {navItems.map((item) => {
+          const isActive = pathname === item.href;
+          return (
+            <Link
+              key={item.name}
+              href={item.href}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${isActive
+                ? "bg-blue-600 text-white shadow-md shadow-blue-900/20"
+                : "text-slate-400 hover:bg-slate-700/30 hover:text-white"
+                }`}
+            >
+              <item.icon
+                className={`w-5 h-5 transition-colors ${isActive
+                  ? "text-white"
+                  : "text-slate-500 group-hover:text-secondary"
+                  }`}
+              />
+              <span className="font-body font-medium text-sm">{item.name}</span>
+            </Link>
+          );
+        })}
       </nav>
 
       {/* Footer / Settings */}
       <div className="p-4 border-t border-border space-y-2">
         {/* User Profile */}
-        {user && (
-          <div className="flex items-center gap-3 px-3 py-2 mb-2 bg-slate-800/50 rounded-lg">
-            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
-              {user.avatar ? (
-                <img src={user.avatar} alt={user.name} className="w-full h-full rounded-full object-cover" />
-              ) : (
-                user.name?.charAt(0).toUpperCase()
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">{user.name}</p>
-              <p className="text-xs text-slate-400 truncate">{user.email}</p>
-            </div>
-          </div>
-        )}
 
         <ThemeToggle />
         <button className="flex items-center gap-3 px-3 py-2 w-full text-muted hover:text-text transition-colors rounded-lg hover:bg-slate-700/10 dark:hover:bg-slate-700/30 group cursor-pointer">

@@ -1,5 +1,4 @@
-import Sidebar from "../dashboard/Sidebar";
-
+import Sidebar from "./Sidebar";
 export default function DashboardLayout({
   children,
 }: {
@@ -8,7 +7,6 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen bg-background text-text font-body">
       <Sidebar />
-      {/* Main Content Wrapper - Offset by sidebar width */}
       <main className="pl-64 min-h-screen">
         <div className="p-8 max-w-7xl mx-auto">{children}</div>
       </main>
