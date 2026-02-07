@@ -1,10 +1,13 @@
 import { axiosConfig } from "@/lib/axiosInstance";
 
-
-export const getAllAssets = async () => {
+export const getAllAssets = async (page?: number, limit?: number) => {
   return await axiosConfig({
     method: "GET",
-    url: "/assets",
+    url: `/assets`,
+    params: {
+      page,
+      limit,
+    },
   });
 };
 
@@ -20,6 +23,14 @@ export const createAsset = async (data: any) => {
     method: "POST",
     url: "/assets",
     data: data,
+  });
+};
+
+export const importFile = async (data: FormData) => {
+  return await axiosConfig({
+    method: "POST",
+    url: "/assets/import-file",
+    data,
   });
 };
 

@@ -23,11 +23,14 @@ import {
 import { useGetAssignmentByUser } from "@/hooks/useAssignment"
 import { formatDate } from "@/utils/format";
 
-export default function AssetListPage() {
+export default function Asset() {
     const [searchTerm, setSearchTerm] = useState("");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [copied, setCopied] = useState<number | null>(null);
     const { data: assignment } = useGetAssignmentByUser();
+
+
+    console.log(assignment?.data?.data);
 
     const handleCopy = (e: React.MouseEvent, id: number, text: string) => {
         e.preventDefault();
@@ -83,9 +86,9 @@ export default function AssetListPage() {
                     </div>
                 </div>
 
-                {assignment?.data?.length > 0 ? (
+                {assignment?.data?.data?.length > 0 ? (
                     <div className={viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-3"}>
-                        {assignment?.data?.map((item: any) => (
+                        {assignment?.data?.data?.map((item: any) => (
                             <Link href={`/asset/${item?.asset?.id}`} key={item?.asset?.id} className="group block">
                                 {viewMode === 'grid' ? (
                                     <div className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer relative">
@@ -151,7 +154,7 @@ export default function AssetListPage() {
                                                     {item?.asset?.status === 'assigned' ? 'Đã cấp' : 'Sẵn sàng'}
                                                 </span>
                                                 <span className="text-xs text-slate-400 ml-auto">
-                                                    {item?.asset?.expired_at ? formatDate(item?.asset?.expired_at) : 'Vĩnh viễn'}
+                                                    {item?.expired_at ? formatDate(item?.expired_at) : 'Vĩnh viễn'}
                                                 </span>
                                             </div>
                                         </div>
