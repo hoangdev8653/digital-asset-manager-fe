@@ -6,6 +6,7 @@ export const useGetAllAssetTypes = () => {
         queryKey: ["assetTypes"],
         queryFn: async () => {
             const response = await getAllAssetType();
+            console.log(response.data);
             return response.data;
         },
         staleTime: 1000 * 60 * 5,
