@@ -26,7 +26,7 @@ export const useGetReport = (id: string) => {
 
 export const useGetReportByUser = () => {
     return useQuery({
-        queryKey: ["report"],
+        queryKey: ["report", "user"],
         queryFn: async () => {
             const response = await getReportByUser();
             return response.data;

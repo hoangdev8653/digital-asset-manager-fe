@@ -6,7 +6,7 @@ export const useGetAllNotifications = () => {
         queryKey: ["notification", "all"],
         queryFn: async () => {
             const response = await getAllNotifications();
-            return response;
+            return response.data;
         },
         staleTime: 1000 * 6 * 5,
     });
@@ -17,7 +17,7 @@ export const useGetNotificationByUser = () => {
         queryKey: ["notification", "user"],
         queryFn: async () => {
             const response = await getNotificationByUser();
-            return response;
+            return response.data;
         },
         staleTime: 1000 * 6 * 5,
     });

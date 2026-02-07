@@ -17,7 +17,7 @@ export const getReport = async (id: string) => {
 export const getReportByUser = async () => {
   return await axiosConfig({
     method: "GET",
-    url: "/reports/user",
+    url: "/reports/me",
   });
 };
 

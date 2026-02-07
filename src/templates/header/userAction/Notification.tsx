@@ -12,16 +12,16 @@ function Notification() {
   const { mutate: updateStatusNotification } = useUpdateStatusNotification();
   const [isOpen, setIsOpen] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
-  const [notifications, setNotifications] = useState<any[]>([]);
+  // const [notifications, setNotifications] = useState<any[]>([]); // Removed
 
-  useEffect(() => {
-    if (notificationByUser?.data?.data) {
-      setNotifications(notificationByUser.data.data);
-    }
-  }, [notificationByUser]);
+  // Removed useEffect syncing
+
+  const notifications = Array.isArray(notificationByUser?.data)
+    ? notificationByUser.data
+    : (Array.isArray(notificationByUser?.data?.data) ? notificationByUser.data.data : []);
 
   const NotificationByUser = notifications;
-  const NotificationIsUnRead = notifications?.filter((n) => !n.isRead);
+  const NotificationIsUnRead = notifications?.filter((n: any) => !n.isRead);
   const totalNotificationUnRead = NotificationIsUnRead?.length;
 
   const handleClickOutside = (event: MouseEvent) => {

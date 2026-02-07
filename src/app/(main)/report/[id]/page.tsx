@@ -15,7 +15,7 @@ import Link from "next/link";
 import { Textarea } from "@/components/ui/textarea";
 import { useGetReport } from "@/hooks/useReport";
 
-export default function ReportDetailPage() {
+export default function ReportDetail() {
     const params = useParams();
     const { data: response, isLoading } = useGetReport(params.id as string);
     console.log("response", response);
@@ -28,7 +28,7 @@ export default function ReportDetailPage() {
             </div>
         );
     }
-    const report = response?.data;
+    const report = response?.data?.data;
     if (!report) {
         return <div className="p-10 text-center">Không tìm thấy dữ liệu báo cáo.</div>;
     }
@@ -45,13 +45,13 @@ export default function ReportDetailPage() {
                     <div>
                         <div className="flex items-center gap-3 mb-2">
                             <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-xs font-mono font-medium border border-slate-200">
-                                #{report.id.split('-')[0].toUpperCase()}
+                                #{response?.data?.data?.id?.split('-')[0]?.toUpperCase() || 'N/A'}
                             </span>
                             <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full text-xs font-bold border border-blue-100 uppercase">
-                                {report.status}
+                                {response?.data?.data?.status}
                             </span>
                             <span className="text-slate-400 text-xs italic">
-                                Loại: {report.report_type}
+                                Loại: {response?.data?.data?.report_type}
                             </span>
                         </div>
                         <h1 className="text-2xl font-bold text-slate-900">Chi tiết báo cáo sự cố</h1>

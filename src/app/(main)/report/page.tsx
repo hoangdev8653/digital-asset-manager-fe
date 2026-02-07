@@ -41,14 +41,14 @@ import {
 import { useGetReportByUser } from "@/hooks/useReport"
 import { formatDate } from "@/utils/format";
 
-export default function ReportListPage() {
+export default function Report() {
     const [filterStatus, setFilterStatus] = useState("All");
     const { data: reports } = useGetReportByUser();
 
 
     const reportList = Array.isArray(reports?.data)
         ? reports.data
-        : (reports?.data ? [reports.data] : []);
+        : (Array.isArray(reports?.data?.data) ? reports.data.data : []);
 
     const getStatusColor = (status: string) => {
         switch (status?.toLowerCase()) {
@@ -90,7 +90,7 @@ export default function ReportListPage() {
                     <div className="flex items-center gap-3">
                         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                             <DialogTrigger asChild>
-                                <Button className="bg-red-600 hover:bg-red-700 gap-2 shadow-sm rounded-lg">
+                                <Button className="cursor-pointer bg-red-600 hover:bg-red-700 gap-2 shadow-sm rounded-lg">
                                     <AlertCircle className="w-4 h-4" /> Báo lỗi mới
                                 </Button>
                             </DialogTrigger>
@@ -252,7 +252,7 @@ export default function ReportListPage() {
                                                             {report.description || report.report_type}
                                                         </span>
                                                         <span className="text-xs text-slate-500 block font-mono">
-                                                            {report.id.slice(0, 8)}... • {report.report_type}
+                                                            {report.id?.slice(0, 8)}... • {report.report_type}
                                                         </span>
                                                     </div>
                                                 </div>
@@ -301,7 +301,7 @@ export default function ReportListPage() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
 
